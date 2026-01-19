@@ -21,10 +21,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.util.Mth;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.level.ServerLevelAccessor;
 
 import javax.annotation.Nullable;
 
@@ -44,7 +40,7 @@ public class FogMonsterEntity extends Monster {
 
     public FogMonsterEntity(EntityType<? extends Monster> type, Level level) {
         super(type, level);
-        this.xpReward = 100;
+        this.xpReward = 10;
     }
 
     @Override
@@ -115,35 +111,5 @@ public static AttributeSupplier.Builder createAttributes() {
             .add(Attributes.ATTACK_KNOCKBACK, 2.0D)
             .add(Attributes.FOLLOW_RANGE, 48.0D);
 }
-
-    /**
-     * Spawn rule used by {@link net.minecraft.world.entity.SpawnPlacements}.
-     *
-     * Biome restriction (forests) is handled via Forge biome modifiers (data pack JSON).
-     * Here we enforce "night only" + "rare" in a way that works for natural spawning.
-     */
-    public static boolean canFogMonsterSpawn(EntityType<FogMonsterEntity> type,
-                                            ServerLevelAccessor level,
-                                            MobSpawnType spawnType,
-                                            BlockPos pos,
-                                            RandomSource random) {
-
-        // Keep spawners/commands working normally.
-        if (spawnType != MobSpawnType.NATURAL && spawnType != MobSpawnType.CHUNK_GENERATION) {
-            return Monster.checkMonsterSpawnRules(type, level, spawnType, pos, random);
-        }
-
-        // Night only
-        if (!level.getLevel().isNight()) {
-            return false;
-        }
-
-        // Rare roll (1 in 200). This is on top of a low biome weight.
-        if (random.nextInt(200) != 0) {
-            return false;
-        }
-
-        return Monster.checkMonsterSpawnRules(type, level, spawnType, pos, random);
-    }
 
 }
