@@ -1,6 +1,8 @@
 package rem.fog_monster;
 
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -44,7 +46,15 @@ public class FogMonster {
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
-        // no-op
+        event.enqueueWork(() -> {
+            // Spawn placement rules (biome restrictions are handled via Forge biome modifiers in data/)
+            SpawnPlacements.register(
+                    ModEntities.FOG_MONSTER.get(),
+                    SpawnPlacements.Type.ON_GROUND,
+                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    rem.fog_monster.common.entity.FogMonsterEntity::canFogMonsterSpawn
+            );
+        });
     }
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {

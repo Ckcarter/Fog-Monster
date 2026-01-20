@@ -128,21 +128,25 @@ public static AttributeSupplier.Builder createAttributes() {
                                             BlockPos pos,
                                             RandomSource random) {
 
-        // Keep spawners/commands working normally.
+        // Allow spawners/commands to work normally.
         if (spawnType != MobSpawnType.NATURAL && spawnType != MobSpawnType.CHUNK_GENERATION) {
             return Monster.checkMonsterSpawnRules(type, level, spawnType, pos, random);
         }
 
-        // Night only
-        if (!level.getLevel().isNight()) {
+        // Night-only (Overworld-style): dayTime 0..23999, night starts at 13000.
+        long dayTime = level.getLevel().getDayTime() % 24000L;
+        if (dayTime < 13000L) {
             return false;
         }
 
-        // Rare roll (1 in 200). This is on top of a low biome weight.
-        if (random.nextInt(200) != 0) {
+        // Extra rarity gate on top of biome weight.
+        // 1 in 50 natural spawn checks will pass this roll.
+        if (random.nextInt(5) != 0) {
+            System.out.println("Here I am!!!");
             return false;
         }
 
+        // Vanilla hostile mob checks (dark enough, valid ground, etc.)
         return Monster.checkMonsterSpawnRules(type, level, spawnType, pos, random);
     }
 
